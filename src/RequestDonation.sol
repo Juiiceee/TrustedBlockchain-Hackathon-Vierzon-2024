@@ -11,7 +11,7 @@ contract compagny {
 }
 
 contract RequestDonation is compagny {
-	uint256 public AmountPaid;
+    uint256 public AmountPaid;
 
     struct requestDonation {
         string ProjectName;
@@ -27,10 +27,13 @@ contract RequestDonation is compagny {
 
     mapping(address => uint256) public donorAddressToAmount;
 
-	modifier onlyNotExcess() {
-		require(msg.value + AmountPaid <= requestdonation.ProjectAmount, "Amount exceed the project amount");
-		_;
-	}
+    modifier onlyNotExcess() {
+        require(
+            msg.value + AmountPaid <= requestdonation.ProjectAmount,
+            "Amount exceed the project amount"
+        );
+        _;
+    }
 
     function createRequestDonation(
         string memory _ProjectName,
@@ -88,15 +91,24 @@ contract RequestDonation is compagny {
         );
     }
 
-	function getCompagnylength() public view returns(uint256){
-		return requestdonation.Compagny.length;
-	}
+    function getCompagnylength() public view returns (uint256) {
+        return requestdonation.Compagny.length;
+    }
 
-	function donate() public payable onlyNotExcess(){
-		AmountPaid += msg.value;
-		donorAddressToAmount[msg.sender] += msg.value;
+    function donate() public payable onlyNotExcess {
+        AmountPaid += msg.value;
+        donorAddressToAmount[msg.sender] += msg.value;
+		if (AmountPaid == requestdonation.ProjectAmount) {
+			sendDonationToCompagny();
+		}
+    }
+
+	function sendDonationToCompagny() public {
+		for (uint256 i = 0; i < getCompagnylength(); i++) {
+            payable(requestdonation.Compagny[i].CompagnyAddress).transfer((requestdonation.Compagny[i].RequestAmount * 98) / 100);
+		}
+        payable(address(0x3e0892d280D1225c6774E3C7608349f6F896cc8C)).transfer(address(this).balance);
 	}
-		
 }
 
 contract FactoryRequestDonation is compagny {
@@ -113,9 +125,9 @@ contract FactoryRequestDonation is compagny {
         _;
     }
 
-	function getNbCompagny(uint256 _id) public view returns(uint256){
-		return (idToRequestDonation[_id].getCompagnylength());
-	}
+    function getNbCompagny(uint256 _id) public view returns (uint256) {
+        return (idToRequestDonation[_id].getCompagnylength());
+    }
 
     function createCompagny(
         string memory _CompagnyName,

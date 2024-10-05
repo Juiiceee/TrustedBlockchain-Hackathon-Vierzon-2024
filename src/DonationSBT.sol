@@ -6,6 +6,25 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
+interface IRequestDonation {
+    function getRequestDonationInfo() external view returns (
+        string memory ProjectName,
+        string memory ProjectDescription,
+        string memory ProjectQuote,
+        uint256 ProjectAmount,
+        uint256 CreationDate,
+        uint256 LimiteDate,
+        IRequestDonation.compagnyInfo[] memory Companies
+    );
+
+    struct compagnyInfo {
+        string CompagnyName;
+        uint256 CompagnySIREN;
+        uint256 RequestAmount;
+        address CompagnyAddress;
+    }
+}
+
 contract DonationProofSBT is ERC721, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
@@ -20,26 +39,35 @@ contract DonationProofSBT is ERC721, ERC721URIStorage, Ownable {
     }
 
     mapping(uint256 => DonationInfo) public donationInfo;
+    mapping(address => mapping(address => bool)) public hasMinted;
 
     event DonationProofMinted(address indexed donor, uint256 amount, address indexed project, uint256 tokenId);
 
     constructor() ERC721("DonationProof", "DPF") Ownable(msg.sender) {
-        _baseTokenURI = "https://rose-written-jellyfish-653.mypinata.cloud/ipfs/QmZiZZd4F2NScgioJR2GKyvywqXQi3MGcKjbiosP7geG5g?pinataGatewayToken=s0BFC594wAJX3O6PQb7zBWU7ya34HL1dMZyATFnfWqGSfskmg-F6GmXEzAQCV4By";
+        _baseTokenURI = "https://rose-written-jellyfish-653.mypinata.cloud/ipfs/QmUMG7f2z5f4j8TxSKEZ6kgbiuVR7KjXbuoa1jkYWBJp1x?pinataGatewayToken=s0BFC594wAJX3O6PQb7zBWU7ya34HL1dMZyATFnfWqGSfskmg-F6GmXEzAQCV4By";
     }
 
-    function mint(address to, uint256 amount, address project, uint256 blockNumber) public returns (uint256) {
+    function mintSBT(address donor, uint256 amount, address project) external returns (uint256) {
+        require(msg.sender == project, "Only the project can mint SBTs");
+        require(!hasMinted[donor][project], "SBT already minted for this donor and project");
+
+        (, , , , , uint256 limiteDate, ) = IRequestDonation(project).getRequestDonationInfo();
+        require(block.timestamp >= limiteDate, "Campaign not yet ended");
+
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
+        _safeMint(donor, tokenId);
 
         donationInfo[tokenId] = DonationInfo({
             amount: amount,
             project: project,
             timestamp: block.timestamp,
-            blockNumber: blockNumber
+            blockNumber: block.number
         });
 
-        emit DonationProofMinted(to, amount, project, tokenId);
+        hasMinted[donor][project] = true;
+
+        emit DonationProofMinted(donor, amount, project, tokenId);
 
         return tokenId;
     }

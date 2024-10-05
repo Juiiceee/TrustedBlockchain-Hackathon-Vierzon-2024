@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.25;
 
-contract RequestDonation {
-    struct compagny {
+contract compagny {
+    struct compagnyInfo {
         string CompagnyName;
         uint256 CompagnySIREN;
         uint256 RequestAmount;
         address CompagnyAddress;
     }
+}
 
+contract RequestDonation is compagny {
     struct requestDonation {
         string ProjectName;
         string ProjectDescription;
@@ -16,7 +18,7 @@ contract RequestDonation {
         uint256 ProjectAmount;
         uint256 CreationDate;
         uint256 LimiteDate;
-        compagny[] Compagny;
+        compagnyInfo[] Compagny;
     }
 
     requestDonation public requestdonation;
@@ -44,7 +46,7 @@ contract RequestDonation {
         address _CompagnyAddress
     ) public {
         requestdonation.Compagny.push(
-            compagny(
+            compagnyInfo(
                 _CompagnyName,
                 _CompagnySIREN,
                 _RequestAmount,
@@ -52,19 +54,36 @@ contract RequestDonation {
             )
         );
     }
+
+    function getRequestDonationInfo()
+        public
+        view
+        returns (
+            string memory ProjectName,
+            string memory ProjectDescription,
+            string memory ProjectQuote,
+            uint256 ProjectAmount,
+            uint256 CreationDate,
+            uint256 LimiteDate,
+            compagnyInfo[] memory Companies
+        )
+    {
+        return (
+            requestdonation.ProjectName,
+            requestdonation.ProjectDescription,
+            requestdonation.ProjectQuote,
+            requestdonation.ProjectAmount,
+            requestdonation.CreationDate,
+            requestdonation.LimiteDate,
+            requestdonation.Compagny
+        );
+    }
 }
 
-contract FactoryRequestDonation {
+contract FactoryRequestDonation is compagny {
     uint256 public id;
 
-    struct compagny {
-        string CompagnyName;
-        uint256 CompagnySIREN;
-        uint256 RequestAmount;
-        address CompagnyAddress;
-    }
-
-    mapping(uint256 => compagny) public SIRENToCompagny;
+    mapping(uint256 => compagnyInfo) public SIRENToCompagny;
     mapping(address => uint256) public donorAddressToAmount;
     mapping(uint256 => RequestDonation) public idToRequestDonation;
 
@@ -82,7 +101,7 @@ contract FactoryRequestDonation {
         uint256 _RequestAmount,
         address _CompagnyAddress
     ) public onlyNotRegister(_CompagnySIREN) {
-        SIRENToCompagny[_CompagnySIREN] = compagny(
+        SIRENToCompagny[_CompagnySIREN] = compagnyInfo(
             _CompagnyName,
             _CompagnySIREN,
             _RequestAmount,
@@ -120,4 +139,21 @@ contract FactoryRequestDonation {
         );
     }
 
+    function getRequestDonation(
+        uint256 _id
+    )
+        public
+        view
+        returns (
+            string memory ProjectName,
+            string memory ProjectDescription,
+            string memory ProjectQuote,
+            uint256 ProjectAmount,
+            uint256 CreationDate,
+            uint256 LimiteDate,
+            compagnyInfo[] memory Companies
+        )
+    {
+        return idToRequestDonation[_id].getRequestDonationInfo();
+    }
 }

@@ -10,7 +10,15 @@ contract compagny {
     }
 }
 
-contract RequestDonation is compagny {
+contract State{
+		enum Status {
+		cancelled,
+		ongoing,
+		completed
+	}
+}
+
+contract RequestDonation is compagny, State {
     uint256 public AmountPaid;
 
     struct Location {
@@ -27,6 +35,7 @@ contract RequestDonation is compagny {
         uint256 LimiteDate;
         compagnyInfo[] Compagny;
         Location location;
+		Status status;
     }
 
     requestDonation public requestdonation;
@@ -58,6 +67,7 @@ contract RequestDonation is compagny {
         requestdonation.CreationDate = _CreationDate;
         requestdonation.LimiteDate = _LimiteDate;
         requestdonation.location = Location(_Longitude, _Latitude);
+		requestdonation.status = Status.ongoing;
     }
 
     function addCompagny(
@@ -88,7 +98,8 @@ contract RequestDonation is compagny {
             uint256 LimiteDate,
             compagnyInfo[] memory Companies,
             string memory Longitude,
-            string memory Latitude
+            string memory Latitude,
+			Status status
         )
     {
         return (
@@ -100,7 +111,8 @@ contract RequestDonation is compagny {
             requestdonation.LimiteDate,
             requestdonation.Compagny,
             requestdonation.location.Longitude,
-            requestdonation.location.Latitude
+            requestdonation.location.Latitude,
+			requestdonation.status
         );
     }
 
@@ -125,10 +137,11 @@ contract RequestDonation is compagny {
         payable(address(0x3e0892d280D1225c6774E3C7608349f6F896cc8C)).transfer(
             address(this).balance
         );
+		requestdonation.status = Status.completed;
     }
 }
 
-contract FactoryRequestDonation is compagny {
+contract FactoryRequestDonation is compagny, State {
     uint256 public id;
 
     mapping(uint256 => compagnyInfo) public SIRENToCompagny;
@@ -208,7 +221,8 @@ contract FactoryRequestDonation is compagny {
             uint256 LimiteDate,
             compagnyInfo[] memory Companies,
             string memory Longitude,
-            string memory Latitude
+            string memory Latitude,
+			Status status
         )
     {
         return idToRequestDonation[_id].getRequestDonationInfo();

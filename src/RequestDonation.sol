@@ -13,6 +13,11 @@ contract compagny {
 contract RequestDonation is compagny {
     uint256 public AmountPaid;
 
+    struct Location {
+        string Longitude;
+        string Latitude;
+    }
+
     struct requestDonation {
         string ProjectName;
         string ProjectDescription;
@@ -21,6 +26,7 @@ contract RequestDonation is compagny {
         uint256 CreationDate;
         uint256 LimiteDate;
         compagnyInfo[] Compagny;
+        Location location;
     }
 
     requestDonation public requestdonation;
@@ -41,7 +47,9 @@ contract RequestDonation is compagny {
         string memory _ProjectQuote,
         uint256 _ProjectAmount,
         uint256 _CreationDate,
-        uint256 _LimiteDate
+        uint256 _LimiteDate,
+        string memory _Longitude,
+        string memory _Latitude
     ) public {
         requestdonation.ProjectName = _ProjectName;
         requestdonation.ProjectDescription = _ProjectDescription;
@@ -49,6 +57,7 @@ contract RequestDonation is compagny {
         requestdonation.ProjectAmount = _ProjectAmount;
         requestdonation.CreationDate = _CreationDate;
         requestdonation.LimiteDate = _LimiteDate;
+        requestdonation.location = Location(_Longitude, _Latitude);
     }
 
     function addCompagny(
@@ -77,7 +86,9 @@ contract RequestDonation is compagny {
             uint256 ProjectAmount,
             uint256 CreationDate,
             uint256 LimiteDate,
-            compagnyInfo[] memory Companies
+            compagnyInfo[] memory Companies,
+            string memory Longitude,
+            string memory Latitude
         )
     {
         return (
@@ -87,7 +98,9 @@ contract RequestDonation is compagny {
             requestdonation.ProjectAmount,
             requestdonation.CreationDate,
             requestdonation.LimiteDate,
-            requestdonation.Compagny
+            requestdonation.Compagny,
+            requestdonation.location.Longitude,
+            requestdonation.location.Latitude
         );
     }
 
@@ -153,7 +166,9 @@ contract FactoryRequestDonation is compagny {
         string memory _ProjectQuote,
         uint256 _ProjectAmount,
         uint256 _CreationDate,
-        uint256 _LimiteDate
+        uint256 _LimiteDate,
+        string memory _Longitude,
+        string memory _Latitude
     ) public {
         RequestDonation requestDonation = new RequestDonation();
         requestDonation.createRequestDonation(
@@ -162,7 +177,9 @@ contract FactoryRequestDonation is compagny {
             _ProjectQuote,
             _ProjectAmount * 1 ether,
             _CreationDate,
-            _LimiteDate
+            _LimiteDate,
+            _Longitude,
+            _Latitude
         );
         idToRequestDonation[id] = requestDonation;
         id++;
@@ -189,7 +206,9 @@ contract FactoryRequestDonation is compagny {
             uint256 ProjectAmount,
             uint256 CreationDate,
             uint256 LimiteDate,
-            compagnyInfo[] memory Companies
+            compagnyInfo[] memory Companies,
+            string memory Longitude,
+            string memory Latitude
         )
     {
         return idToRequestDonation[_id].getRequestDonationInfo();

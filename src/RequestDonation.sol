@@ -30,6 +30,7 @@ contract RequestDonation is compagny, State {
         string ProjectName;
         string ProjectDescription;
         string ProjectQuote;
+        string ProjectImage;
         uint256 ProjectAmount;
         uint256 CreationDate;
         uint256 LimiteDate;
@@ -54,6 +55,7 @@ contract RequestDonation is compagny, State {
         string memory _ProjectName,
         string memory _ProjectDescription,
         string memory _ProjectQuote,
+        string memory _ProjectImage,
         uint256 _ProjectAmount,
         uint256 _LimiteDate,
         string memory _Longitude,
@@ -62,6 +64,7 @@ contract RequestDonation is compagny, State {
         requestdonation.ProjectName = _ProjectName;
         requestdonation.ProjectDescription = _ProjectDescription;
         requestdonation.ProjectQuote = _ProjectQuote;
+        requestdonation.ProjectQuote = _ProjectImage;
         requestdonation.ProjectAmount = _ProjectAmount;
         requestdonation.CreationDate = block.timestamp;
         requestdonation.LimiteDate = _LimiteDate;
@@ -92,6 +95,7 @@ contract RequestDonation is compagny, State {
             string memory ProjectName,
             string memory ProjectDescription,
             string memory ProjectQuote,
+            string memory ProjectImage,
             uint256 ProjectAmount,
             uint256 CreationDate,
             uint256 LimiteDate,
@@ -105,6 +109,7 @@ contract RequestDonation is compagny, State {
             requestdonation.ProjectName,
             requestdonation.ProjectDescription,
             requestdonation.ProjectQuote,
+            requestdonation.ProjectImage,
             requestdonation.ProjectAmount,
             requestdonation.CreationDate,
             requestdonation.LimiteDate,
@@ -176,6 +181,7 @@ contract FactoryRequestDonation is compagny, State {
         string memory _ProjectName,
         string memory _ProjectDescription,
         string memory _ProjectQuote,
+        string memory _ProjectImage,
         uint256 _ProjectAmount,
         uint256 _LimiteDate,
         string memory _Longitude,
@@ -186,6 +192,7 @@ contract FactoryRequestDonation is compagny, State {
             _ProjectName,
             _ProjectDescription,
             _ProjectQuote,
+            _ProjectImage,
             _ProjectAmount * 1 ether,
             _LimiteDate,
             _Longitude,
@@ -213,6 +220,7 @@ contract FactoryRequestDonation is compagny, State {
             string memory ProjectName,
             string memory ProjectDescription,
             string memory ProjectQuote,
+            string memory ProjectImage,
             uint256 ProjectAmount,
             uint256 CreationDate,
             uint256 LimiteDate,

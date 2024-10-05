@@ -55,7 +55,6 @@ contract RequestDonation is compagny, State {
         string memory _ProjectDescription,
         string memory _ProjectQuote,
         uint256 _ProjectAmount,
-        uint256 _CreationDate,
         uint256 _LimiteDate,
         string memory _Longitude,
         string memory _Latitude
@@ -64,7 +63,7 @@ contract RequestDonation is compagny, State {
         requestdonation.ProjectDescription = _ProjectDescription;
         requestdonation.ProjectQuote = _ProjectQuote;
         requestdonation.ProjectAmount = _ProjectAmount;
-        requestdonation.CreationDate = _CreationDate;
+        requestdonation.CreationDate = block.timestamp;
         requestdonation.LimiteDate = _LimiteDate;
         requestdonation.location = Location(_Longitude, _Latitude);
 		requestdonation.status = Status.ongoing;
@@ -178,7 +177,6 @@ contract FactoryRequestDonation is compagny, State {
         string memory _ProjectDescription,
         string memory _ProjectQuote,
         uint256 _ProjectAmount,
-        uint256 _CreationDate,
         uint256 _LimiteDate,
         string memory _Longitude,
         string memory _Latitude
@@ -189,7 +187,6 @@ contract FactoryRequestDonation is compagny, State {
             _ProjectDescription,
             _ProjectQuote,
             _ProjectAmount * 1 ether,
-            _CreationDate,
             _LimiteDate,
             _Longitude,
             _Latitude

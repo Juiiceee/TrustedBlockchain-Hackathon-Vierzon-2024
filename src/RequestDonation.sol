@@ -11,6 +11,8 @@ contract compagny {
 }
 
 contract RequestDonation is compagny {
+	uint256 public AmountPaid;
+
     struct requestDonation {
         string ProjectName;
         string ProjectDescription;
@@ -22,6 +24,13 @@ contract RequestDonation is compagny {
     }
 
     requestDonation public requestdonation;
+
+    mapping(address => uint256) public donorAddressToAmount;
+
+	modifier onlyNotExcess() {
+		require(msg.value + AmountPaid <= requestdonation.ProjectAmount, "Amount exceed the project amount");
+		_;
+	}
 
     function createRequestDonation(
         string memory _ProjectName,
@@ -78,13 +87,22 @@ contract RequestDonation is compagny {
             requestdonation.Compagny
         );
     }
+
+	function getCompagnylength() public view returns(uint256){
+		return requestdonation.Compagny.length;
+	}
+
+	function donate() public payable onlyNotExcess(){
+		AmountPaid += msg.value;
+		donorAddressToAmount[msg.sender] += msg.value;
+	}
+		
 }
 
 contract FactoryRequestDonation is compagny {
     uint256 public id;
 
     mapping(uint256 => compagnyInfo) public SIRENToCompagny;
-    mapping(address => uint256) public donorAddressToAmount;
     mapping(uint256 => RequestDonation) public idToRequestDonation;
 
     modifier onlyNotRegister(uint256 _CompagnySIREN) {
@@ -94,6 +112,10 @@ contract FactoryRequestDonation is compagny {
         );
         _;
     }
+
+	function getNbCompagny(uint256 _id) public view returns(uint256){
+		return (idToRequestDonation[_id].getCompagnylength());
+	}
 
     function createCompagny(
         string memory _CompagnyName,

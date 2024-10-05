@@ -98,17 +98,21 @@ contract RequestDonation is compagny {
     function donate() public payable onlyNotExcess {
         AmountPaid += msg.value;
         donorAddressToAmount[msg.sender] += msg.value;
-		if (AmountPaid == requestdonation.ProjectAmount) {
-			sendDonationToCompagny();
-		}
+        if (AmountPaid == requestdonation.ProjectAmount) {
+            sendDonationToCompagny();
+        }
     }
 
-	function sendDonationToCompagny() public {
-		for (uint256 i = 0; i < getCompagnylength(); i++) {
-            payable(requestdonation.Compagny[i].CompagnyAddress).transfer((requestdonation.Compagny[i].RequestAmount * 98) / 100);
-		}
-        payable(address(0x3e0892d280D1225c6774E3C7608349f6F896cc8C)).transfer(address(this).balance);
-	}
+    function sendDonationToCompagny() public {
+        for (uint256 i = 0; i < getCompagnylength(); i++) {
+            payable(requestdonation.Compagny[i].CompagnyAddress).transfer(
+                (requestdonation.Compagny[i].RequestAmount * 98) / 100
+            );
+        }
+        payable(address(0x3e0892d280D1225c6774E3C7608349f6F896cc8C)).transfer(
+            address(this).balance
+        );
+    }
 }
 
 contract FactoryRequestDonation is compagny {

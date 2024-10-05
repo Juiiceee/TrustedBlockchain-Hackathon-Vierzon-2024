@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.25;
 
+import "./DonationSBT.sol";
+
 contract compagny {
     struct compagnyInfo {
         string CompagnyName;
@@ -11,7 +13,8 @@ contract compagny {
 }
 
 contract RequestDonation is compagny {
-	uint256 public AmountPaid;
+    uint256 public AmountPaid;
+    DonationProofSBT public sbtContract;
 
     struct requestDonation {
         string ProjectName;
@@ -27,10 +30,17 @@ contract RequestDonation is compagny {
 
     mapping(address => uint256) public donorAddressToAmount;
 
-	modifier onlyNotExcess() {
-		require(msg.value + AmountPaid <= requestdonation.ProjectAmount, "Amount exceed the project amount");
-		_;
-	}
+    modifier onlyNotExcess() {
+        require(msg.value + AmountPaid <= requestdonation.ProjectAmount, "Amount exceed the project amount");
+        _;
+    }
+
+    event DonationMade(address indexed donor, uint256 amount, uint256 sbtTokenId);
+
+    constructor(address _sbtContractAddress) {
+        require(_sbtContractAddress != address(0), "Invalid SBT contract address");
+        sbtContract = DonationProofSBT(_sbtContractAddress);
+    }
 
     function createRequestDonation(
         string memory _ProjectName,
@@ -88,22 +98,38 @@ contract RequestDonation is compagny {
         );
     }
 
-	function getCompagnylength() public view returns(uint256){
-		return requestdonation.Compagny.length;
-	}
+    function getCompagnylength() public view returns(uint256) {
+        return requestdonation.Compagny.length;
+    }
 
-	function donate() public payable onlyNotExcess(){
-		AmountPaid += msg.value;
-		donorAddressToAmount[msg.sender] += msg.value;
-	}
-		
+    function donate() public payable onlyNotExcess() {
+        AmountPaid += msg.value;
+        donorAddressToAmount[msg.sender] += msg.value;
+
+        uint256 sbtTokenId = sbtContract.mint(msg.sender, msg.value, address(this), block.number);
+
+        emit DonationMade(msg.sender, msg.value, sbtTokenId);
+    }
+
+    function setSBTContract(address _newSBTContract) public {
+        require(_newSBTContract != address(0), "Invalid SBT contract address");
+        sbtContract = DonationProofSBT(_newSBTContract);
+    }
 }
 
 contract FactoryRequestDonation is compagny {
     uint256 public id;
+    address public sbtContractAddress;
 
     mapping(uint256 => compagnyInfo) public SIRENToCompagny;
     mapping(uint256 => RequestDonation) public idToRequestDonation;
+
+    event RequestDonationCreated(uint256 indexed id, address requestDonationAddress);
+
+    constructor(address _sbtContractAddress) {
+        require(_sbtContractAddress != address(0), "Invalid SBT contract address");
+        sbtContractAddress = _sbtContractAddress;
+    }
 
     modifier onlyNotRegister(uint256 _CompagnySIREN) {
         require(
@@ -113,9 +139,9 @@ contract FactoryRequestDonation is compagny {
         _;
     }
 
-	function getNbCompagny(uint256 _id) public view returns(uint256){
-		return (idToRequestDonation[_id].getCompagnylength());
-	}
+    function getNbCompagny(uint256 _id) public view returns(uint256) {
+        return (idToRequestDonation[_id].getCompagnylength());
+    }
 
     function createCompagny(
         string memory _CompagnyName,
@@ -139,7 +165,7 @@ contract FactoryRequestDonation is compagny {
         uint256 _CreationDate,
         uint256 _LimiteDate
     ) public {
-        RequestDonation requestDonation = new RequestDonation();
+        RequestDonation requestDonation = new RequestDonation(sbtContractAddress);
         requestDonation.createRequestDonation(
             _ProjectName,
             _ProjectDescription,
@@ -149,6 +175,7 @@ contract FactoryRequestDonation is compagny {
             _LimiteDate
         );
         idToRequestDonation[id] = requestDonation;
+        emit RequestDonationCreated(id, address(requestDonation));
         id++;
     }
 
@@ -177,5 +204,14 @@ contract FactoryRequestDonation is compagny {
         )
     {
         return idToRequestDonation[_id].getRequestDonationInfo();
+    }
+
+    function setSBTContractAddress(address _newSBTContractAddress) public {
+        require(_newSBTContractAddress != address(0), "Invalid SBT contract address");
+        sbtContractAddress = _newSBTContractAddress;
+    }
+
+    function getSBTContractAddress() public view returns (address) {
+        return sbtContractAddress;
     }
 }

@@ -109,7 +109,7 @@ contract FactoryRequestDonation is compagny {
         );
     }
 
-    function createRequestDonation( 
+    function createRequestDonation(
         string memory _ProjectName,
         string memory _ProjectDescription,
         string memory _ProjectQuote,

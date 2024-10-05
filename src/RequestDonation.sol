@@ -138,7 +138,7 @@ contract FactoryRequestDonation is compagny {
         SIRENToCompagny[_CompagnySIREN] = compagnyInfo(
             _CompagnyName,
             _CompagnySIREN,
-            _RequestAmount,
+            _RequestAmount * 1 ether,
             _CompagnyAddress
         );
     }
@@ -156,7 +156,7 @@ contract FactoryRequestDonation is compagny {
             _ProjectName,
             _ProjectDescription,
             _ProjectQuote,
-            _ProjectAmount,
+            _ProjectAmount * 1 ether,
             _CreationDate,
             _LimiteDate
         );
